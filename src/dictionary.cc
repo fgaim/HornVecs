@@ -170,14 +170,18 @@ void Dictionary::computeSubwords(const std::string& word,
   }
 
   // root and template
+  // 1. feliTa = flT, _e_i_a
   std::string root;
   std::string templ;
   char c;
   for (size_t i = 0; i < word.size(); i++) {
       c = word[i];
       if ((c & 0xC0) == 0x80) continue;
-      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+      if (c == 'W') continue;
+      if (c == 'a' || c == 'e' || c == 'E' || c == 'i' || c == 'o' || c == 'u') {
           templ.push_back(c);
+      } else if (c == '<' || c == '>') {
+          root.push_back(c);
       } else {
           root.push_back(c);
           templ.push_back('_');
@@ -189,6 +193,49 @@ void Dictionary::computeSubwords(const std::string& word,
   pushHash(ngrams, h);
   substrings.push_back(root);
   substrings.push_back(templ);
+  
+  // 2. feliTa = C_C_C_, _V_V_V
+  std::string root2;
+  std::string templ2;
+  for (size_t i = 0; i < word.size(); i++) {
+      c = word[i];
+      if ((c & 0xC0) == 0x80) continue;
+      if (c == 'W') continue;
+      if (c == 'a' || c == 'e' || c == 'E' || c == 'i' || c == 'o' || c == 'u') {
+          root2.push_back('_');
+          templ2.push_back('V');
+      } else if (c == '<' || c == '>') {
+          root2.push_back(c);
+          templ2.push_back(c);
+      } else {
+          root2.push_back('C');
+          templ2.push_back('_');
+      }
+  }
+  h = hash(root2) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(templ2) % args_->bucket;
+  pushHash(ngrams, h);
+  substrings.push_back(root2);
+  substrings.push_back(templ2);
+  
+  // 3. feliTa = CVCVCV
+  std::string root_templ;
+  for (size_t i = 0; i < word.size(); i++) {
+      c = word[i];
+      if ((c & 0xC0) == 0x80) continue;
+      if (c == 'W') continue;
+      if (c == 'a' || c == 'e' || c == 'E' || c == 'i' || c == 'o' || c == 'u') {
+          root_templ.push_back('V');
+      } else if (c == '<' || c == '>') {
+          root_templ.push_back(c);
+      } else {
+          root_templ.push_back('C');
+      }
+  }
+  h = hash(root_templ) % args_->bucket;
+  pushHash(ngrams, h);
+  substrings.push_back(root_templ);
 }
 
 void Dictionary::computeSubwords(const std::string& word,
@@ -210,23 +257,53 @@ void Dictionary::computeSubwords(const std::string& word,
   }
 
   // root and template
+  // 1. feliTa = flT, f_l_T_, _e_i_a
   std::string root;
+  std::string root_;
   std::string templ;
+  // 2. feliTa = C_C_C_, _V_V_V
+  std::string root2;
+  std::string templ2;
+  // 3. feliTa = CVCVCV
+  std::string root_templ;
   char c;
   for (size_t i = 0; i < word.size(); i++) {
       c = word[i];
       if ((c & 0xC0) == 0x80) continue;
-      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+      if (c == 'W') continue;
+      if (c == 'a' || c == 'e' || c == 'E' || c == 'i' || c == 'o' || c == 'u') {
           templ.push_back(c);
-      }
-      else {
+          root_.push_back('_');
+          root2.push_back('_');
+          templ2.push_back('V');
+          root_templ.push_back('V');
+      } else if (c == '<' || c == '>') {
           root.push_back(c);
+          root_.push_back(c);
+          templ.push_back(c);
+          root2.push_back(c);
+          templ2.push_back(c);
+          root_templ.push_back(c);
+      } else {
+          root.push_back(c);
+          root_.push_back(c);
           templ.push_back('_');
+          root2.push_back('C');
+          templ2.push_back('_');
+          root_templ.push_back('C');
       }
   }
   int32_t h = hash(root) % args_->bucket;
   pushHash(ngrams, h);
+  h = hash(root_) % args_->bucket;
+  pushHash(ngrams, h);
   h = hash(templ) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(root2) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(templ2) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(root_templ) % args_->bucket;
   pushHash(ngrams, h);
 }
 
