@@ -152,6 +152,7 @@ uint32_t Dictionary::hash(const std::string& str) const {
 void Dictionary::computeSubwords(const std::string& word,
                                std::vector<int32_t>& ngrams,
                                std::vector<std::string>& substrings) const {
+  // ngrams
   for (size_t i = 0; i < word.size(); i++) {
     std::string ngram;
     if ((word[i] & 0xC0) == 0x80) continue;
@@ -167,10 +168,32 @@ void Dictionary::computeSubwords(const std::string& word,
       }
     }
   }
+
+  // root and template
+  std::string root;
+  std::string templ;
+  char c;
+  for (size_t i = 0; i < word.size(); i++) {
+      c = word[i];
+      if ((c & 0xC0) == 0x80) continue;
+      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+          templ.push_back(c);
+      } else {
+          root.push_back(c);
+          templ.push_back('_');
+      }
+  }
+  int32_t h = hash(root) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(templ) % args_->bucket;
+  pushHash(ngrams, h);
+  substrings.push_back(root);
+  substrings.push_back(templ);
 }
 
 void Dictionary::computeSubwords(const std::string& word,
                                std::vector<int32_t>& ngrams) const {
+  // ngrams
   for (size_t i = 0; i < word.size(); i++) {
     std::string ngram;
     if ((word[i] & 0xC0) == 0x80) continue;
@@ -185,6 +208,26 @@ void Dictionary::computeSubwords(const std::string& word,
       }
     }
   }
+
+  // root and template
+  std::string root;
+  std::string templ;
+  char c;
+  for (size_t i = 0; i < word.size(); i++) {
+      c = word[i];
+      if ((c & 0xC0) == 0x80) continue;
+      if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+          templ.push_back(c);
+      }
+      else {
+          root.push_back(c);
+          templ.push_back('_');
+      }
+  }
+  int32_t h = hash(root) % args_->bucket;
+  pushHash(ngrams, h);
+  h = hash(templ) % args_->bucket;
+  pushHash(ngrams, h);
 }
 
 void Dictionary::initNgrams() {
