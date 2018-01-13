@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace fasttext {
+namespace hornvecs {
 
 constexpr int64_t SIGMOID_TABLE_SIZE = 512;
 constexpr int64_t MAX_SIGMOID = 8;

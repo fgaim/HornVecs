@@ -14,7 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace fasttext {
+namespace hornvecs {
 
 Args::Args() {
   lr = 0.05;

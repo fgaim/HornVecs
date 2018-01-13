@@ -28,9 +28,9 @@
 #include "utils.h"
 #include "vector.h"
 
-namespace fasttext {
+namespace hornvecs {
 
-class FastText {
+class HornVecs {
  protected:
   std::shared_ptr<Args> args_;
   std::shared_ptr<Dictionary> dict_;
@@ -56,11 +56,11 @@ class FastText {
   void startThreads();
 
  public:
-  FastText();
+  HornVecs();
 
   int32_t getWordId(const std::string&) const;
   int32_t getSubwordId(const std::string&) const;
-  FASTTEXT_DEPRECATED(
+  HORNVECS_DEPRECATED(
     "getVector is being deprecated and replaced by getWordVector.")
   void getVector(Vector&, const std::string&) const;
   void getWordVector(Vector&, const std::string&) const;

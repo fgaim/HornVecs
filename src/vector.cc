@@ -17,7 +17,7 @@
 #include "matrix.h"
 #include "qmatrix.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 Vector::Vector(int64_t m) : data_(m) {}
 

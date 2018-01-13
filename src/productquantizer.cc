@@ -14,7 +14,7 @@
 #include <numeric>
 #include <stdexcept>
 
-namespace fasttext {
+namespace hornvecs {
 
 real distL2(const real* x, const real* y, int32_t d) {
   real dist = 0;

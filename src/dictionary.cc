@@ -18,7 +18,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace fasttext {
+namespace hornvecs {
 
 const std::string Dictionary::EOS = "</s>";
 const std::string Dictionary::BOW = "<";

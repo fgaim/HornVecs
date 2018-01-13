@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace fasttext {
+namespace hornvecs {
 
 enum class model_name : int { cbow = 1, sg, sup };
 enum class loss_name : int { hs = 1, ns, softmax };

@@ -17,7 +17,7 @@
 #include <assert.h>
 #include "real.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 class Vector;
 

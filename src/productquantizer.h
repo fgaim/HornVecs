@@ -18,7 +18,7 @@
 #include "real.h"
 #include "vector.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 class ProductQuantizer {
   protected:
