@@ -10,15 +10,15 @@
 #include <iostream>
 #include <queue>
 #include <iomanip>
-#include "fasttext.h"
+#include "hornvecs.h"
 #include "args.h"
 
-using namespace fasttext;
+using namespace hornvecs;
 
 void printUsage() {
   std::cerr
-    << "usage: fasttext <command> <args>\n\n"
-    << "The commands supported by fasttext are:\n\n"
+    << "usage: hornvecs <command> <args>\n\n"
+    << "The commands supported by hornvecs are:\n\n"
     << "  supervised              train a supervised classifier\n"
     << "  quantize                quantize a model to reduce the memory usage\n"
     << "  test                    evaluate a supervised classifier\n"
@@ -37,13 +37,13 @@ void printUsage() {
 
 void printQuantizeUsage() {
   std::cerr
-    << "usage: fasttext quantize <args>"
+    << "usage: hornvecs quantize <args>"
     << std::endl;
 }
 
 void printTestUsage() {
   std::cerr
-    << "usage: fasttext test <model> <test-data> [<k>] [<th>]\n\n"
+    << "usage: hornvecs test <model> <test-data> [<k>] [<th>]\n\n"
     << "  <model>      model filename\n"
     << "  <test-data>  test data filename (if -, read from stdin)\n"
     << "  <k>          (optional; 1 by default) predict top k labels\n"
@@ -53,7 +53,7 @@ void printTestUsage() {
 
 void printPredictUsage() {
   std::cerr
-    << "usage: fasttext predict[-prob] <model> <test-data> [<k>] [<th>]\n\n"
+    << "usage: hornvecs predict[-prob] <model> <test-data> [<k>] [<th>]\n\n"
     << "  <model>      model filename\n"
     << "  <test-data>  test data filename (if -, read from stdin)\n"
     << "  <k>          (optional; 1 by default) predict top k labels\n"
@@ -63,21 +63,21 @@ void printPredictUsage() {
 
 void printPrintWordVectorsUsage() {
   std::cerr
-    << "usage: fasttext print-word-vectors <model>\n\n"
+    << "usage: hornvecs print-word-vectors <model>\n\n"
     << "  <model>      model filename\n"
     << std::endl;
 }
 
 void printPrintSentenceVectorsUsage() {
   std::cerr
-    << "usage: fasttext print-sentence-vectors <model>\n\n"
+    << "usage: hornvecs print-sentence-vectors <model>\n\n"
     << "  <model>      model filename\n"
     << std::endl;
 }
 
 void printPrintNgramsUsage() {
   std::cerr
-    << "usage: fasttext print-ngrams <model> <word>\n\n"
+    << "usage: hornvecs print-ngrams <model> <word>\n\n"
     << "  <model>      model filename\n"
     << "  <word>       word to print\n"
     << std::endl;
@@ -91,17 +91,17 @@ void quantize(const std::vector<std::string>& args) {
     exit(EXIT_FAILURE);
   }
   a.parseArgs(args);
-  FastText fasttext;
+  HornVecs hornvecs;
   // parseArgs checks if a->output is given.
-  fasttext.loadModel(a.output + ".bin");
-  fasttext.quantize(a);
-  fasttext.saveModel();
+  hornvecs.loadModel(a.output + ".bin");
+  hornvecs.quantize(a);
+  hornvecs.saveModel();
   exit(0);
 }
 
 void printNNUsage() {
   std::cout
-    << "usage: fasttext nn <model> <k>\n\n"
+    << "usage: hornvecs nn <model> <k>\n\n"
     << "  <model>      model filename\n"
     << "  <k>          (optional; 10 by default) predict top k labels\n"
     << std::endl;
@@ -109,7 +109,7 @@ void printNNUsage() {
 
 void printAnalogiesUsage() {
   std::cout
-    << "usage: fasttext analogies <model> <k>\n\n"
+    << "usage: hornvecs analogies <model> <k>\n\n"
     << "  <model>      model filename\n"
     << "  <k>          (optional; 10 by default) predict top k labels\n"
     << std::endl;
@@ -117,7 +117,7 @@ void printAnalogiesUsage() {
 
 void printDumpUsage() {
   std::cout
-    << "usage: fasttext dump <model> <option>\n\n"
+    << "usage: hornvecs dump <model> <option>\n\n"
     << "  <model>      model filename\n"
     << "  <option>     option from args,dict,input,output"
     << std::endl;
@@ -137,20 +137,20 @@ void test(const std::vector<std::string>& args) {
     }
   }
 
-  FastText fasttext;
-  fasttext.loadModel(args[2]);
+  HornVecs hornvecs;
+  hornvecs.loadModel(args[2]);
 
   std::tuple<int64_t, double, double> result;
   std::string infile = args[3];
   if (infile == "-") {
-    result = fasttext.test(std::cin, k, threshold);
+    result = hornvecs.test(std::cin, k, threshold);
   } else {
     std::ifstream ifs(infile);
     if (!ifs.is_open()) {
       std::cerr << "Test file cannot be opened!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    result = fasttext.test(ifs, k, threshold);
+    result = hornvecs.test(ifs, k, threshold);
     ifs.close();
   }
   std::cout << "N" << "\t" << std::get<0>(result) << std::endl;
@@ -175,19 +175,19 @@ void predict(const std::vector<std::string>& args) {
   }
 
   bool print_prob = args[1] == "predict-prob";
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
 
   std::string infile(args[3]);
   if (infile == "-") {
-    fasttext.predict(std::cin, k, print_prob, threshold);
+    hornvecs.predict(std::cin, k, print_prob, threshold);
   } else {
     std::ifstream ifs(infile);
     if (!ifs.is_open()) {
       std::cerr << "Input file cannot be opened!" << std::endl;
       exit(EXIT_FAILURE);
     }
-    fasttext.predict(ifs, k, print_prob, threshold);
+    hornvecs.predict(ifs, k, print_prob, threshold);
     ifs.close();
   }
 
@@ -199,12 +199,12 @@ void printWordVectors(const std::vector<std::string> args) {
     printPrintWordVectorsUsage();
     exit(EXIT_FAILURE);
   }
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
   std::string word;
-  Vector vec(fasttext.getDimension());
+  Vector vec(hornvecs.getDimension());
   while (std::cin >> word) {
-    fasttext.getWordVector(vec, word);
+    hornvecs.getWordVector(vec, word);
     std::cout << word << " " << vec << std::endl;
   }
   exit(0);
@@ -215,11 +215,11 @@ void printSentenceVectors(const std::vector<std::string> args) {
     printPrintSentenceVectorsUsage();
     exit(EXIT_FAILURE);
   }
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
-  Vector svec(fasttext.getDimension());
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
+  Vector svec(hornvecs.getDimension());
   while (std::cin.peek() != EOF) {
-    fasttext.getSentenceVector(std::cin, svec);
+    hornvecs.getSentenceVector(std::cin, svec);
     // Don't print sentence
     std::cout << svec << std::endl;
   }
@@ -231,9 +231,9 @@ void printNgrams(const std::vector<std::string> args) {
     printPrintNgramsUsage();
     exit(EXIT_FAILURE);
   }
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
-  fasttext.ngramVectors(std::string(args[3]));
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
+  hornvecs.ngramVectors(std::string(args[3]));
   exit(0);
 }
 
@@ -247,14 +247,14 @@ void nn(const std::vector<std::string> args) {
     printNNUsage();
     exit(EXIT_FAILURE);
   }
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
   std::string queryWord;
-  std::shared_ptr<const Dictionary> dict = fasttext.getDictionary();
-  Vector queryVec(fasttext.getDimension());
-  Matrix wordVectors(dict->nwords(), fasttext.getDimension());
+  std::shared_ptr<const Dictionary> dict = hornvecs.getDictionary();
+  Vector queryVec(hornvecs.getDimension());
+  Matrix wordVectors(dict->nwords(), hornvecs.getDimension());
   std::cerr << "Pre-computing word vectors...";
-  fasttext.precomputeWordVectors(wordVectors);
+  hornvecs.precomputeWordVectors(wordVectors);
   std::cerr << " done." << std::endl;
   std::set<std::string> banSet;
   std::cout << "Query word? ";
@@ -262,8 +262,8 @@ void nn(const std::vector<std::string> args) {
   while (std::cin >> queryWord) {
     banSet.clear();
     banSet.insert(queryWord);
-    fasttext.getWordVector(queryVec, queryWord);
-    fasttext.findNN(wordVectors, queryVec, k, banSet, results);
+    hornvecs.getWordVector(queryVec, queryWord);
+    hornvecs.findNN(wordVectors, queryVec, k, banSet, results);
     for (auto& pair : results) {
       std::cout << pair.second << " " << pair.first << std::endl;
     }
@@ -282,21 +282,21 @@ void analogies(const std::vector<std::string> args) {
     printAnalogiesUsage();
     exit(EXIT_FAILURE);
   }
-  FastText fasttext;
-  fasttext.loadModel(std::string(args[2]));
-  fasttext.analogies(k);
+  HornVecs hornvecs;
+  hornvecs.loadModel(std::string(args[2]));
+  hornvecs.analogies(k);
   exit(0);
 }
 
 void train(const std::vector<std::string> args) {
   Args a = Args();
   a.parseArgs(args);
-  FastText fasttext;
-  fasttext.train(a);
-  fasttext.saveModel();
-  fasttext.saveVectors();
+  HornVecs hornvecs;
+  hornvecs.train(a);
+  hornvecs.saveModel();
+  hornvecs.saveVectors();
   if (a.saveOutput) {
-    fasttext.saveOutput();
+    hornvecs.saveOutput();
   }
 }
 
@@ -309,23 +309,23 @@ void dump(const std::vector<std::string>& args) {
   std::string modelPath = args[2];
   std::string option = args[3];
 
-  FastText fasttext;
-  fasttext.loadModel(modelPath);
+  HornVecs hornvecs;
+  hornvecs.loadModel(modelPath);
   if (option == "args") {
-    fasttext.getArgs().dump(std::cout);
+    hornvecs.getArgs().dump(std::cout);
   } else if (option == "dict") {
-    fasttext.getDictionary()->dump(std::cout);
+    hornvecs.getDictionary()->dump(std::cout);
   } else if (option == "input") {
-    if (fasttext.isQuant()) {
+    if (hornvecs.isQuant()) {
       std::cerr << "Not supported for quantized models." << std::endl;
     } else {
-      fasttext.getInputMatrix()->dump(std::cout);
+      hornvecs.getInputMatrix()->dump(std::cout);
     }
   } else if (option == "output") {
-    if (fasttext.isQuant()) {
+    if (hornvecs.isQuant()) {
       std::cerr << "Not supported for quantized models." << std::endl;
     } else {
-      fasttext.getOutputMatrix()->dump(std::cout);
+      hornvecs.getOutputMatrix()->dump(std::cout);
     }
   } else {
     printDumpUsage();

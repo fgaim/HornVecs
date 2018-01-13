@@ -7,26 +7,29 @@
    * [FAQ](#faq)
    * [Cheatsheet](#cheatsheet)
 * [Requirements](#requirements)
-* [Building fastText](#building-fasttext)
+* [Building hornVecs](#building-hornvecs)
    * [Getting the source code](#getting-the-source-code)
-   * [Building fastText using make (preferred)](#building-fasttext-using-make-preferred)
-   * [Building fastText using cmake](#building-fasttext-using-cmake)
-   * [Building fastText for Python](#building-fasttext-for-python)
+   * [Building hornVecs using cmake (preferred)](#building-hornvecs-using-cmake)
+   * [Building hornVecs using make](#building-hornvecs-using-make-preferred)
+   * [Building hornVecs for Python](#building-hornvecs-for-python)
 * [Example use cases](#example-use-cases)
    * [Word representation learning](#word-representation-learning)
    * [Obtaining word vectors for out-of-vocabulary words](#obtaining-word-vectors-for-out-of-vocabulary-words)
    * [Text classification](#text-classification)
 * [Full documentation](#full-documentation)
 * [References](#references)
-   * [Enriching Word Vectors with Subword Information](#enriching-word-vectors-with-subword-information)
-   * [Bag of Tricks for Efficient Text Classification](#bag-of-tricks-for-efficient-text-classification)
-   * [FastText.zip: Compressing text classification models](#fasttextzip-compressing-text-classification-models)
-* [Join the fastText community](#join-the-fasttext-community)
 * [License](#license)
 
 ## Introduction
 
-[fastText](https://fasttext.cc/) is a library for efficient learning of word representations and sentence classification.
+HornVecs is a library for efficient learning of word representations and sentence classification of Semitic Languages,
+particulary Tigrinya and Amahric. It is built on top of the fantastic [fastText](https://fasttext.cc/) by Facebook.
+
+The main contribution of HornVecs is that it considers the innate **non-concatenative morphology** of the Semitic languages
+when building the subwords for word embeddings. On the cases of Tigrinya and Amharic, we have observed fairly good 
+performance gains when using HornVecs embeddings over fastText, word2vec, and GloVe.
+
+Even though HornVecs can be used for all languages that fastText supports, for languages other than the Semitic family we recommend you to use [fastText](https://github.com/facebookresearch/fastText).
 
 ## Resources
 
@@ -48,9 +51,9 @@ We also provide a [cheatsheet](https://fasttext.cc/docs/en/cheatsheet.html#conte
 
 ## Requirements
 
-We are continously building and testing our library, CLI and Python bindings under various docker images using [circleci](https://circleci.com/).
+We are continuously building and testing our library, CLI and Python bindings under various docker images using [circleci](https://circleci.com/).
 
-Generally, **fastText** builds on modern Mac OS and Linux distributions.
+Generally, **hornVecs** builds on modern Mac OS and Linux distributions.
 Since it uses some C++11 features, it requires a compiler with good C++11 support.
 These include :
 
@@ -74,50 +77,50 @@ For the python bindings (see the subdirectory python) you will need:
 
 One of the oldest distributions we successfully built and tested the Python bindings under is [Debian jessie](https://www.debian.org/releases/jessie/).
 
-If these requirements make it impossible for you to use fastText, please open an issue and we will try to accommodate you.
+If these requirements make it impossible for you to use hornVecs, please open an issue and we will try to accommodate you.
 
-## Building fastText
+## Building hornVecs
 
-We discuss building the latest stable version of fastText.
+We discuss building the latest stable version of hornVecs.
 
 ### Getting the source code
 
-You can find our [latest stable release](https://github.com/facebookresearch/fastText/releases/latest) in the usual place.
+You can find our [latest stable release](https://github.com/fgaim/HornVecs/releases/latest) in the usual place.
 
 There is also the master branch that contains all of our most recent work, but comes along with all the usual caveats of an unstable branch. You might want to use this if you are a developer or power-user.
 
-### Building fastText using make (preferred)
-
-```
-$ wget https://github.com/facebookresearch/fastText/archive/v0.1.0.zip
-$ unzip v0.1.0.zip
-$ cd fastText-0.1.0
-$ make
-```
- 
-This will produce object files for all the classes as well as the main binary `fasttext`.
-If you do not plan on using the default system-wide compiler, update the two macros defined at the beginning of the Makefile (CC and INCLUDES).
-
-### Building fastText using cmake
+### Building hornVecs using cmake
 
 For now this is not part of a release, so you will need to clone the master branch.
 
 ```
-$ git clone https://github.com/facebookresearch/fastText.git
-$ cd fastText
+$ git clone https://github.com/fgaim/HornVecs.git
+$ cd hornVecs
 $ mkdir build && cd build && cmake ..
 $ make && make install
 ```
 
-This will create the fasttext binary and also all relevant libraries (shared, static, PIC).
+This will create the hornvecs binary and also all relevant libraries (shared, static, PIC).
 
-### Building fastText for Python
+### Building hornVecs using make
+
+```
+$ wget https://github.com/fgaim/HornVecs/archive/v0.1.0.zip
+$ unzip v0.1.0.zip
+$ cd hornVecs-0.1.0
+$ make
+```
+ 
+This will produce object files for all the classes as well as the main binary `hornvecs`.
+If you do not plan on using the default system-wide compiler, update the two macros defined at the beginning of the Makefile (CC and INCLUDES).
+
+### Building hornVecs for Python
 
 For now this is not part of a release, so you will need to clone the master branch.
 
 ```
-$ git clone https://github.com/facebookresearch/fastText.git
-$ cd fastText
+$ git clone https://github.com/fgaim/HornVecs.git
+$ cd hornVecs
 $ pip install .
 ```
 
@@ -126,14 +129,13 @@ For further information and introduction see python/README.md
 ## Example use cases
 
 This library has two main use cases: word representation learning and text classification.
-These were described in the two papers [1](#enriching-word-vectors-with-subword-information) and [2](#bag-of-tricks-for-efficient-text-classification).
 
 ### Word representation learning
 
-In order to learn word vectors, as described in [1](#enriching-word-vectors-with-subword-information), do:
+In order to learn word vectors, do:
 
 ```
-$ ./fasttext skipgram -input data.txt -output model
+$ ./hornvecs skipgram -input data.txt -output model
 ```
 
 where `data.txt` is a training file containing `UTF-8` encoded text.
@@ -149,14 +151,14 @@ The previously trained model can be used to compute word vectors for out-of-voca
 Provided you have a text file `queries.txt` containing words for which you want to compute vectors, use the following command:
 
 ```
-$ ./fasttext print-word-vectors model.bin < queries.txt
+$ ./hornvecs print-word-vectors model.bin < queries.txt
 ```
 
 This will output word vectors to the standard output, one vector per line.
 This can also be used with pipes:
 
 ```
-$ cat queries.txt | ./fasttext print-word-vectors model.bin
+$ cat queries.txt | ./hornvecs print-word-vectors model.bin
 ```
 
 See the provided scripts for an example. For instance, running:
@@ -173,7 +175,7 @@ This library can also be used to train supervised text classifiers, for instance
 In order to train a text classifier using the method described in [2](#bag-of-tricks-for-efficient-text-classification), use:
 
 ```
-$ ./fasttext supervised -input train.txt -output model
+$ ./hornvecs supervised -input train.txt -output model
 ```
 
 where `train.txt` is a text file containing a training sentence per line along with the labels.
@@ -182,7 +184,7 @@ This will output two files: `model.bin` and `model.vec`.
 Once the model was trained, you can evaluate it by computing the precision and recall at k (P@k and R@k) on a test set using:
 
 ```
-$ ./fasttext test model.bin test.txt k
+$ ./hornvecs test model.bin test.txt k
 ```
 
 The argument `k` is optional, and is equal to `1` by default.
@@ -190,13 +192,13 @@ The argument `k` is optional, and is equal to `1` by default.
 In order to obtain the k most likely labels for a piece of text, use:
 
 ```
-$ ./fasttext predict model.bin test.txt k
+$ ./hornvecs predict model.bin test.txt k
 ```
 
 or use `predict-prob` to also get the probability for each label
 
 ```
-$ ./fasttext predict-prob model.bin test.txt k
+$ ./hornvecs predict-prob model.bin test.txt k
 ```
 
 where `test.txt` contains a piece of text to classify per line.
@@ -208,7 +210,7 @@ In order to reproduce results from the paper [2](#bag-of-tricks-for-efficient-te
 If you want to compute vector representations of sentences or paragraphs, please use:
 
 ```
-$ ./fasttext print-sentence-vectors model.bin < text.txt
+$ ./hornvecs print-sentence-vectors model.bin < text.txt
 ```
 
 This assumes that the `text.txt` file contains the paragraphs that you want to get vectors for.
@@ -217,11 +219,11 @@ The program will output one vector representation per line in the file.
 You can also quantize a supervised model to reduce its memory usage with the following command:
 
 ```
-$ ./fasttext quantize -output model
+$ ./hornvecs quantize -output model
 ```
 This will create a `.ftz` file with a smaller memory footprint. All the standard functionality, like `test` or `predict` work the same way on the quantized models:
 ```
-$ ./fasttext test model.ftz test.txt
+$ ./hornvecs test model.ftz test.txt
 ```
 The quantization procedure follows the steps described in [3](#fastext-zip). You can
 run the script `quantization-example.sh` for an example.
@@ -232,7 +234,7 @@ run the script `quantization-example.sh` for an example.
 Invoke a command without arguments to list available arguments and their default values:
 
 ```
-$ ./fasttext supervised
+$ ./hornvecs supervised
 Empty input or output path.
 
 The following arguments are mandatory:
@@ -276,58 +278,10 @@ Defaults may vary by mode. (Word-representation modes `skipgram` and `cbow` use 
 
 ## References
 
-Please cite [1](#enriching-word-vectors-with-subword-information) if using this code for learning word representations or [2](#bag-of-tricks-for-efficient-text-classification) if using for text classification.
+If you use HornVecs in your work, please cite the fastText papers listed in 
+the [original repository]() and in addition cite this repository.
 
-### Enriching Word Vectors with Subword Information
-
-[1] P. Bojanowski\*, E. Grave\*, A. Joulin, T. Mikolov, [*Enriching Word Vectors with Subword Information*](https://arxiv.org/abs/1607.04606)
-
-```
-@article{bojanowski2016enriching,
-  title={Enriching Word Vectors with Subword Information},
-  author={Bojanowski, Piotr and Grave, Edouard and Joulin, Armand and Mikolov, Tomas},
-  journal={arXiv preprint arXiv:1607.04606},
-  year={2016}
-}
-```
-
-### Bag of Tricks for Efficient Text Classification
-
-[2] A. Joulin, E. Grave, P. Bojanowski, T. Mikolov, [*Bag of Tricks for Efficient Text Classification*](https://arxiv.org/abs/1607.01759)
-
-```
-@article{joulin2016bag,
-  title={Bag of Tricks for Efficient Text Classification},
-  author={Joulin, Armand and Grave, Edouard and Bojanowski, Piotr and Mikolov, Tomas},
-  journal={arXiv preprint arXiv:1607.01759},
-  year={2016}
-}
-```
-
-### FastText.zip: Compressing text classification models
-
-[3] A. Joulin, E. Grave, P. Bojanowski, M. Douze, H. Jégou, T. Mikolov, [*FastText.zip: Compressing text classification models*](https://arxiv.org/abs/1612.03651)
-
-```
-@article{joulin2016fasttext,
-  title={FastText.zip: Compressing text classification models},
-  author={Joulin, Armand and Grave, Edouard and Bojanowski, Piotr and Douze, Matthijs and J{\'e}gou, H{\'e}rve and Mikolov, Tomas},
-  journal={arXiv preprint arXiv:1612.03651},
-  year={2016}
-}
-```
-
-(\* These authors contributed equally.)
-
-
-## Join the fastText community
-
-* Facebook page: https://www.facebook.com/groups/1174547215919768
-* Google group: https://groups.google.com/forum/#!forum/fasttext-library
-* Contact: [egrave@fb.com](mailto:egrave@fb.com), [bojanowski@fb.com](mailto:bojanowski@fb.com), [ajoulin@fb.com](mailto:ajoulin@fb.com), [tmikolov@fb.com](mailto:tmikolov@fb.com)
-
-See the CONTRIBUTING file for information about how to help out.
 
 ## License
 
-fastText is BSD-licensed. We also provide an additional patent grant.
+hornVecs adhers to the original fastText BSD-license. Please refer to the fastText repo.

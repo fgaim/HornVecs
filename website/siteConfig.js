@@ -58,10 +58,10 @@ const users = [
 
 const siteConfig = {
   title: "fastText" /* title for your website */,
-  url: "fasttext.cc" /* your site url */,
+  url: "hornvecs.cc" /* your site url */,
   baseUrl: "/" /* base url for your project */,
   repo: "facebookresearch/fastText" /* repo for your project */,
-  cname: "fasttext.cc",
+  cname: "hornvecs.cc",
   users,
   /* base url for editing docs, usage example: editUrl + 'en/doc1.md' */
   /* editUrl: "https://github.com/facebookresearch/fastText/website/edit/master/docs/", */

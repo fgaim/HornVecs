@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#include "fasttext.h"
+#include "hornvecs.h"
 
 #include <iostream>
 #include <sstream>
@@ -20,14 +20,14 @@
 #include <numeric>
 
 
-namespace fasttext {
+namespace hornvecs {
 
-constexpr int32_t FASTTEXT_VERSION = 12; /* Version 1b */
-constexpr int32_t FASTTEXT_FILEFORMAT_MAGIC_INT32 = 793712314;
+constexpr int32_t HORNVECS_VERSION = 12; /* Version 1b */
+constexpr int32_t HORNVECS_FILEFORMAT_MAGIC_INT32 = 793712314;
 
-FastText::FastText() : quant_(false) {}
+HornVecs::HornVecs() : quant_(false) {}
 
-void FastText::addInputVector(Vector& vec, int32_t ind) const {
+void HornVecs::addInputVector(Vector& vec, int32_t ind) const {
   if (quant_) {
     vec.addRow(*qinput_, ind);
   } else {
@@ -35,32 +35,32 @@ void FastText::addInputVector(Vector& vec, int32_t ind) const {
   }
 }
 
-std::shared_ptr<const Dictionary> FastText::getDictionary() const {
+std::shared_ptr<const Dictionary> HornVecs::getDictionary() const {
   return dict_;
 }
 
-const Args FastText::getArgs() const {
+const Args HornVecs::getArgs() const {
   return *args_.get();
 }
 
-std::shared_ptr<const Matrix> FastText::getInputMatrix() const {
+std::shared_ptr<const Matrix> HornVecs::getInputMatrix() const {
   return input_;
 }
 
-std::shared_ptr<const Matrix> FastText::getOutputMatrix() const {
+std::shared_ptr<const Matrix> HornVecs::getOutputMatrix() const {
   return output_;
 }
 
-int32_t FastText::getWordId(const std::string& word) const {
+int32_t HornVecs::getWordId(const std::string& word) const {
   return dict_->getId(word);
 }
 
-int32_t FastText::getSubwordId(const std::string& word) const {
+int32_t HornVecs::getSubwordId(const std::string& word) const {
   int32_t h = dict_->hash(word) % args_->bucket;
   return dict_->nwords() + h;
 }
 
-void FastText::getWordVector(Vector& vec, const std::string& word) const {
+void HornVecs::getWordVector(Vector& vec, const std::string& word) const {
   const std::vector<int32_t>& ngrams = dict_->getSubwords(word);
   vec.zero();
   for (int i = 0; i < ngrams.size(); i ++) {
@@ -71,11 +71,11 @@ void FastText::getWordVector(Vector& vec, const std::string& word) const {
   }
 }
 
-void FastText::getVector(Vector& vec, const std::string& word) const {
+void HornVecs::getVector(Vector& vec, const std::string& word) const {
   getWordVector(vec, word);
 }
 
-void FastText::getSubwordVector(Vector& vec, const std::string& subword)
+void HornVecs::getSubwordVector(Vector& vec, const std::string& subword)
     const {
   vec.zero();
   int32_t h = dict_->hash(subword) % args_->bucket;
@@ -83,7 +83,7 @@ void FastText::getSubwordVector(Vector& vec, const std::string& subword)
   addInputVector(vec, h);
 }
 
-void FastText::saveVectors() {
+void HornVecs::saveVectors() {
   std::ofstream ofs(args_->output + ".vec");
   if (!ofs.is_open()) {
     throw std::invalid_argument(
@@ -99,7 +99,7 @@ void FastText::saveVectors() {
   ofs.close();
 }
 
-void FastText::saveOutput() {
+void HornVecs::saveOutput() {
   std::ofstream ofs(args_->output + ".output");
   if (!ofs.is_open()) {
     throw std::invalid_argument(
@@ -123,27 +123,27 @@ void FastText::saveOutput() {
   ofs.close();
 }
 
-bool FastText::checkModel(std::istream& in) {
+bool HornVecs::checkModel(std::istream& in) {
   int32_t magic;
   in.read((char*)&(magic), sizeof(int32_t));
-  if (magic != FASTTEXT_FILEFORMAT_MAGIC_INT32) {
+  if (magic != HORNVECS_FILEFORMAT_MAGIC_INT32) {
     return false;
   }
   in.read((char*)&(version), sizeof(int32_t));
-  if (version > FASTTEXT_VERSION) {
+  if (version > HORNVECS_VERSION) {
     return false;
   }
   return true;
 }
 
-void FastText::signModel(std::ostream& out) {
-  const int32_t magic = FASTTEXT_FILEFORMAT_MAGIC_INT32;
-  const int32_t version = FASTTEXT_VERSION;
+void HornVecs::signModel(std::ostream& out) {
+  const int32_t magic = HORNVECS_FILEFORMAT_MAGIC_INT32;
+  const int32_t version = HORNVECS_VERSION;
   out.write((char*)&(magic), sizeof(int32_t));
   out.write((char*)&(version), sizeof(int32_t));
 }
 
-void FastText::saveModel() {
+void HornVecs::saveModel() {
   std::string fn(args_->output);
   if (quant_) {
     fn += ".ftz";
@@ -153,7 +153,7 @@ void FastText::saveModel() {
   saveModel(fn);
 }
 
-void FastText::saveModel(const std::string path) {
+void HornVecs::saveModel(const std::string path) {
   std::ofstream ofs(path, std::ofstream::binary);
   if (!ofs.is_open()) {
     throw std::invalid_argument(path + " cannot be opened for saving!");
@@ -179,7 +179,7 @@ void FastText::saveModel(const std::string path) {
   ofs.close();
 }
 
-void FastText::loadModel(const std::string& filename) {
+void HornVecs::loadModel(const std::string& filename) {
   std::ifstream ifs(filename, std::ifstream::binary);
   if (!ifs.is_open()) {
     throw std::invalid_argument(filename + " cannot be opened for loading!");
@@ -191,7 +191,7 @@ void FastText::loadModel(const std::string& filename) {
   ifs.close();
 }
 
-void FastText::loadModel(std::istream& in) {
+void HornVecs::loadModel(std::istream& in) {
   args_ = std::make_shared<Args>();
   input_ = std::make_shared<Matrix>();
   output_ = std::make_shared<Matrix>();
@@ -216,7 +216,7 @@ void FastText::loadModel(std::istream& in) {
   if (!quant_input && dict_->isPruned()) {
     throw std::invalid_argument(
         "Invalid model file.\n"
-        "Please download the updated model from www.fasttext.cc.\n"
+        "Please download the updated model from www.hornvecs.cc.\n"
         "See issue #332 on Github for more information.\n");
   }
 
@@ -238,7 +238,7 @@ void FastText::loadModel(std::istream& in) {
   }
 }
 
-void FastText::printInfo(real progress, real loss, std::ostream& log_stream) {
+void HornVecs::printInfo(real progress, real loss, std::ostream& log_stream) {
   // clock_t might also only be 32bits wide on some systems
   double t = double(clock() - start_) / double(CLOCKS_PER_SEC);
   double lr = args_->lr * (1.0 - progress);
@@ -262,7 +262,7 @@ void FastText::printInfo(real progress, real loss, std::ostream& log_stream) {
   log_stream << std::flush;
 }
 
-std::vector<int32_t> FastText::selectEmbeddings(int32_t cutoff) const {
+std::vector<int32_t> HornVecs::selectEmbeddings(int32_t cutoff) const {
   Vector norms(input_->size(0));
   input_->l2NormRow(norms);
   std::vector<int32_t> idx(input_->size(0), 0);
@@ -276,7 +276,7 @@ std::vector<int32_t> FastText::selectEmbeddings(int32_t cutoff) const {
   return idx;
 }
 
-void FastText::quantize(const Args qargs) {
+void HornVecs::quantize(const Args qargs) {
   if (args_->model != model_name::sup) {
     throw std::invalid_argument(
         "For now we only support quantization of supervised models");
@@ -322,7 +322,7 @@ void FastText::quantize(const Args qargs) {
   }
 }
 
-void FastText::supervised(
+void HornVecs::supervised(
     Model& model,
     real lr,
     const std::vector<int32_t>& line,
@@ -333,7 +333,7 @@ void FastText::supervised(
   model.update(line, labels[i], lr);
 }
 
-void FastText::cbow(Model& model, real lr,
+void HornVecs::cbow(Model& model, real lr,
                     const std::vector<int32_t>& line) {
   std::vector<int32_t> bow;
   std::uniform_int_distribution<> uniform(1, args_->ws);
@@ -350,7 +350,7 @@ void FastText::cbow(Model& model, real lr,
   }
 }
 
-void FastText::skipgram(Model& model, real lr,
+void HornVecs::skipgram(Model& model, real lr,
                         const std::vector<int32_t>& line) {
   std::uniform_int_distribution<> uniform(1, args_->ws);
   for (int32_t w = 0; w < line.size(); w++) {
@@ -364,7 +364,7 @@ void FastText::skipgram(Model& model, real lr,
   }
 }
 
-std::tuple<int64_t, double, double> FastText::test(
+std::tuple<int64_t, double, double> HornVecs::test(
     std::istream& in,
     int32_t k,
     real threshold) {
@@ -391,7 +391,7 @@ std::tuple<int64_t, double, double> FastText::test(
       nexamples, precision / npredictions, precision / nlabels);
 }
 
-void FastText::predict(
+void HornVecs::predict(
   std::istream& in,
   int32_t k,
   std::vector<std::pair<real,std::string>>& predictions,
@@ -411,7 +411,7 @@ void FastText::predict(
   }
 }
 
-void FastText::predict(
+void HornVecs::predict(
   std::istream& in,
   int32_t k,
   bool print_prob,
@@ -438,9 +438,9 @@ void FastText::predict(
   }
 }
 
-void FastText::getSentenceVector(
+void HornVecs::getSentenceVector(
     std::istream& in,
-    fasttext::Vector& svec) {
+    hornvecs::Vector& svec) {
   svec.zero();
   if (args_->model == model_name::sup) {
     std::vector<int32_t> line, labels;
@@ -473,7 +473,7 @@ void FastText::getSentenceVector(
   }
 }
 
-void FastText::ngramVectors(std::string word) {
+void HornVecs::ngramVectors(std::string word) {
   std::vector<int32_t> ngrams;
   std::vector<std::string> substrings;
   Vector vec(args_->dim);
@@ -491,7 +491,7 @@ void FastText::ngramVectors(std::string word) {
   }
 }
 
-void FastText::precomputeWordVectors(Matrix& wordVectors) {
+void HornVecs::precomputeWordVectors(Matrix& wordVectors) {
   Vector vec(args_->dim);
   wordVectors.zero();
   for (int32_t i = 0; i < dict_->nwords(); i++) {
@@ -504,7 +504,7 @@ void FastText::precomputeWordVectors(Matrix& wordVectors) {
   }
 }
 
-void FastText::findNN(
+void HornVecs::findNN(
     const Matrix& wordVectors,
     const Vector& queryVec,
     int32_t k,
@@ -533,7 +533,7 @@ void FastText::findNN(
   }
 }
 
-void FastText::analogies(int32_t k) {
+void HornVecs::analogies(int32_t k) {
   std::string word;
   Vector buffer(args_->dim), query(args_->dim);
   Matrix wordVectors(dict_->nwords(), args_->dim);
@@ -565,7 +565,7 @@ void FastText::analogies(int32_t k) {
   }
 }
 
-void FastText::trainThread(int32_t threadId) {
+void HornVecs::trainThread(int32_t threadId) {
   std::ifstream ifs(args_->input);
   utils::seek(ifs, threadId * utils::size(ifs) / args_->thread);
 
@@ -604,7 +604,7 @@ void FastText::trainThread(int32_t threadId) {
   ifs.close();
 }
 
-void FastText::loadVectors(std::string filename) {
+void HornVecs::loadVectors(std::string filename) {
   std::ifstream in(filename);
   std::vector<std::string> words;
   std::shared_ptr<Matrix> mat; // temp. matrix for pretrained vectors
@@ -643,7 +643,7 @@ void FastText::loadVectors(std::string filename) {
   }
 }
 
-void FastText::train(const Args args) {
+void HornVecs::train(const Args args) {
   args_ = std::make_shared<Args>(args);
   dict_ = std::make_shared<Dictionary>(args_);
   if (args_->input == "-") {
@@ -680,7 +680,7 @@ void FastText::train(const Args args) {
   }
 }
 
-void FastText::startThreads() {
+void HornVecs::startThreads() {
   start_ = clock();
   tokenCount_ = 0;
   loss_ = -1;
@@ -708,11 +708,11 @@ void FastText::startThreads() {
   }
 }
 
-int FastText::getDimension() const {
+int HornVecs::getDimension() const {
     return args_->dim;
 }
 
-bool FastText::isQuant() const {
+bool HornVecs::isQuant() const {
   return quant_;
 }
 

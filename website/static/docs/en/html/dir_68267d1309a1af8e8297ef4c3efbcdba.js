@@ -4,8 +4,8 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "args.h", "args_8h.html", "args_8h" ],
     [ "dictionary.cc", "dictionary_8cc.html", null ],
     [ "dictionary.h", "dictionary_8h.html", "dictionary_8h" ],
-    [ "fasttext.cc", "fasttext_8cc.html", null ],
-    [ "fasttext.h", "fasttext_8h.html", "fasttext_8h" ],
+    [ "hornvecs.cc", "fasttext_8cc.html", null ],
+    [ "hornvecs.h", "fasttext_8h.html", "fasttext_8h" ],
     [ "main.cc", "main_8cc.html", "main_8cc" ],
     [ "matrix.cc", "matrix_8cc.html", null ],
     [ "matrix.h", "matrix_8h.html", [

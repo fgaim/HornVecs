@@ -43,10 +43,10 @@ utils.o: src/utils.cc src/utils.h
 	$(CXX) $(CXXFLAGS) -c src/utils.cc
 
 fasttext.o: src/fasttext.cc src/*.h
-	$(CXX) $(CXXFLAGS) -c src/fasttext.cc
+	$(CXX) $(CXXFLAGS) -c src/hornvecs.cc
 
 fasttext: $(OBJS) src/fasttext.cc
-	$(CXX) $(CXXFLAGS) $(OBJS) src/main.cc -o fasttext
+	$(CXX) $(CXXFLAGS) $(OBJS) src/main.cc -o hornvecs
 
 clean:
-	rm -rf *.o fasttext
+	rm -rf *.o hornvecs

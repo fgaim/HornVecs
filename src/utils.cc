@@ -11,7 +11,7 @@
 
 #include <ios>
 
-namespace fasttext {
+namespace hornvecs {
 
 namespace utils {
 

@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace fasttext {
+namespace hornvecs {
 
 typedef float real;
 

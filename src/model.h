@@ -20,7 +20,7 @@
 #include "qmatrix.h"
 #include "real.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 struct Node {
   int32_t parent;

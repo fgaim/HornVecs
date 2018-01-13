@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <iostream>
 
-namespace fasttext {
+namespace hornvecs {
 
 QMatrix::QMatrix() : qnorm_(false),
   m_(0), n_(0), codesize_(0) {}

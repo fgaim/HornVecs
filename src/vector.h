@@ -15,7 +15,7 @@
 
 #include "real.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 class Matrix;
 class QMatrix;

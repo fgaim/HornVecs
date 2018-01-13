@@ -16,7 +16,7 @@
 #include "utils.h"
 #include "vector.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 Matrix::Matrix() : Matrix(0, 0) {}
 

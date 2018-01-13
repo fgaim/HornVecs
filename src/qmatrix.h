@@ -23,7 +23,7 @@
 
 #include "productquantizer.h"
 
-namespace fasttext {
+namespace hornvecs {
 
 class QMatrix {
   protected:
